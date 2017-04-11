@@ -11,9 +11,8 @@ import com.ranjiexu.optionscrollablepanel.library.PanelAdapter;
 import java.util.List;
 
 /**
- * Created by kelin on 16-11-25.
- */
-
+*  Created by devpc-05 on 2017/4/11.
+**/
 public class TestPanelAdapter extends PanelAdapter {
     private List<List<String>> data;
 

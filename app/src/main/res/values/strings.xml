@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OptionScrollablePanel</string>
+    <string name="execution_price">执行价</string>
 </resources>

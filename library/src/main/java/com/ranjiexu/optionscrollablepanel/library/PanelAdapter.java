@@ -4,9 +4,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 /**
- * Created by kelin on 16-11-18.
- */
-
+*  Created by devpc-05 on 2017/4/11.
+**/
 /**
  * Base class for an Adapter
  * <p>
