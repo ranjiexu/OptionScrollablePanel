@@ -19,14 +19,17 @@ import java.util.HashSet;
  */
 public class ScrollablePanel extends FrameLayout {
     protected RecyclerView recyclerView;
-    protected RecyclerView headerRecyclerView;
+    protected RecyclerView rightHeaderRecyclerView;
+    protected RecyclerView leftHeaderRecyclerView;
     protected PanelLineAdapter panelLineAdapter;
-    protected PanelAdapter panelAdapter;
-    protected FrameLayout firstItemView;
+    protected PanelAdapter leftPanelAdapter;
+    protected PanelAdapter rightPanelAdapter;
+//    protected TextView middleItemView;
 
-    public ScrollablePanel(Context context, PanelAdapter panelAdapter) {
+    public ScrollablePanel(Context context, PanelAdapter leftPanelAdapter, PanelAdapter rightPanelAdapter) {
         super(context);
-        this.panelAdapter = panelAdapter;
+        this.leftPanelAdapter = leftPanelAdapter;
+        this.rightPanelAdapter = rightPanelAdapter;
         initView();
     }
 
@@ -44,26 +47,29 @@ public class ScrollablePanel extends FrameLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.view_scrollable_panel, this, true);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_content_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        firstItemView = (FrameLayout) findViewById(R.id.first_item);
-        headerRecyclerView = (RecyclerView) findViewById(R.id.recycler_header_list);
-        headerRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        headerRecyclerView.setHasFixedSize(true);
-        if (panelAdapter != null) {
-            panelLineAdapter = new PanelLineAdapter(panelAdapter, recyclerView, headerRecyclerView);
+//        middleItemView = (TextView) findViewById(R.id.middle_item);
+        rightHeaderRecyclerView = (RecyclerView) findViewById(R.id.right_recycler_header_list);
+        rightHeaderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rightHeaderRecyclerView.setHasFixedSize(true);
+        leftHeaderRecyclerView = (RecyclerView) findViewById(R.id.left_recycler_header_list);
+        leftHeaderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        leftHeaderRecyclerView.setHasFixedSize(true);
+        if (leftPanelAdapter != null && rightPanelAdapter != null) {
+            panelLineAdapter = new PanelLineAdapter(leftPanelAdapter, rightPanelAdapter, recyclerView, leftHeaderRecyclerView, rightHeaderRecyclerView);
             recyclerView.setAdapter(panelLineAdapter);
-            setUpFirstItemView(panelAdapter);
+//            setUpFirstItemView(leftPanelAdapter);
         }
     }
 
-    private void setUpFirstItemView(PanelAdapter panelAdapter) {
-        RecyclerView.ViewHolder viewHolder = panelAdapter.onCreateViewHolder(firstItemView, panelAdapter.getItemViewType(0, 0));
-        panelAdapter.onBindViewHolder(viewHolder, 0, 0);
-        firstItemView.addView(viewHolder.itemView);
-    }
+//    private void setUpFirstItemView(PanelAdapter leftPanelAdapter) {
+////        RecyclerView.ViewHolder viewHolder = leftPanelAdapter.onCreateViewHolder(middleItemView, leftPanelAdapter.getItemViewType(0, leftPanelAdapter.getColumnCount()/2));
+////        leftPanelAdapter.onBindViewHolder(viewHolder, 0, leftPanelAdapter.getColumnCount()/2);
+//        middleItemView.setText("执行价");
+//    }
 
     public void notifyDataSetChanged() {
         if (panelLineAdapter != null) {
-            setUpFirstItemView(panelAdapter);
+//            setUpFirstItemView(leftPanelAdapter);
             panelLineAdapter.notifyDataChanged();
         }
     }
@@ -75,18 +81,20 @@ public class ScrollablePanel extends FrameLayout {
     }
 
     /**
-     * @param panelAdapter {@link PanelAdapter}
+     * @param leftPanelAdapter {@link PanelAdapter}
      */
-    public void setPanelAdapter(PanelAdapter panelAdapter) {
+    public void setPanelAdapter(PanelAdapter leftPanelAdapter, PanelAdapter rightPanelAdapter) {
         if (this.panelLineAdapter != null) {
-            panelLineAdapter.setPanelAdapter(panelAdapter);
-//            panelLineAdapter.notifyDataSetChanged();
+            panelLineAdapter.setLeftPanelAdapter(leftPanelAdapter);
+            panelLineAdapter.setRightPanelAdapter(rightPanelAdapter);
+            panelLineAdapter.notifyDataSetChanged();
         } else {
-            panelLineAdapter = new PanelLineAdapter(panelAdapter, recyclerView, headerRecyclerView);
+            panelLineAdapter = new PanelLineAdapter(leftPanelAdapter, rightPanelAdapter, recyclerView, leftHeaderRecyclerView, rightHeaderRecyclerView);
             recyclerView.setAdapter(panelLineAdapter);
         }
-        this.panelAdapter = panelAdapter;
-        setUpFirstItemView(panelAdapter);
+        this.leftPanelAdapter = leftPanelAdapter;
+        this.rightPanelAdapter = rightPanelAdapter;
+//        setUpFirstItemView(leftPanelAdapter);
 
     }
 
@@ -111,18 +119,18 @@ public class ScrollablePanel extends FrameLayout {
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            this.panelAdapter.onBindViewHolder(holder, row, position + 1);
+            this.panelAdapter.onBindViewHolder(holder, row, position);
         }
 
         @Override
         public int getItemViewType(int position) {
-            return this.panelAdapter.getItemViewType(row, position + 1);
+            return this.panelAdapter.getItemViewType(row, position);
         }
 
 
         @Override
         public int getItemCount() {
-            return panelAdapter.getColumnCount() - 1;
+            return panelAdapter.getColumnCount();
         }
 
         public void setRow(int row) {
@@ -136,25 +144,41 @@ public class ScrollablePanel extends FrameLayout {
      */
     private static class PanelLineAdapter extends RecyclerView.Adapter<PanelLineAdapter.ViewHolder> {
 
-        private PanelAdapter panelAdapter;
-        private RecyclerView headerRecyclerView;
+        private PanelAdapter leftPanelAdapter;
+        private PanelAdapter rightPanelAdapter;
+        private RecyclerView leftHeaderRecyclerView;
+        private RecyclerView rightHeaderRecyclerView;
         private RecyclerView contentRV;
-        private HashSet<RecyclerView> observerList = new HashSet<>();
-        private int firstPos = -1;
-        private int firstOffset = -1;
+        private HashSet<RecyclerView> leftObserverList = new HashSet<>();
+        private int leftFirstPos = -1;
+        private int leftFirstOffset = -1;
+        private HashSet<RecyclerView> rightObserverList = new HashSet<>();
+        private int rightFirstPos = -1;
+        private int rightFirstOffset = -1;
 
 
-        public PanelLineAdapter(PanelAdapter panelAdapter, RecyclerView contentRV, RecyclerView headerRecyclerView) {
-            this.panelAdapter = panelAdapter;
-            this.headerRecyclerView = headerRecyclerView;
+        public PanelLineAdapter(PanelAdapter leftPanelAdapter, PanelAdapter rightPanelAdapter, RecyclerView contentRV, RecyclerView leftHeaderRecyclerView, RecyclerView rightHeaderRecyclerView) {
+            this.leftPanelAdapter = leftPanelAdapter;
+            this.rightPanelAdapter = rightPanelAdapter;
+            this.leftHeaderRecyclerView = leftHeaderRecyclerView;
+            this.rightHeaderRecyclerView = rightHeaderRecyclerView;
             this.contentRV = contentRV;
-            initRecyclerView(headerRecyclerView);
-            setUpHeaderRecyclerView();
+            initLeftRecyclerView(leftHeaderRecyclerView);
+            initRightRecyclerView(rightHeaderRecyclerView);
+            setUpLeftHeaderRecyclerView();
+            setUpRightHeaderRecyclerView();
         }
 
-        public void setPanelAdapter(PanelAdapter panelAdapter) {
-            this.panelAdapter = panelAdapter;
-            setUpHeaderRecyclerView();
+        public void setLeftPanelAdapter(PanelAdapter leftPanelAdapter) {
+            this.leftPanelAdapter = leftPanelAdapter;
+            setUpLeftHeaderRecyclerView();
+            setUpRightHeaderRecyclerView();
+        }
+
+        public void setRightPanelAdapter(PanelAdapter rightPanelAdapter) {
+            this.rightPanelAdapter = rightPanelAdapter;
+            setUpLeftHeaderRecyclerView();
+            setUpRightHeaderRecyclerView();
         }
 
         @Override
@@ -164,41 +188,51 @@ public class ScrollablePanel extends FrameLayout {
 
         @Override
         public int getItemCount() {
-            return panelAdapter.getRowCount() - 1;
+            return leftPanelAdapter.getRowCount() - 1;
         }
 
         @Override
         public PanelLineAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             PanelLineAdapter.ViewHolder viewHolder = new PanelLineAdapter.ViewHolder(LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.listitem_content_row, parent, false));
-            initRecyclerView(viewHolder.recyclerView);
+            initLeftRecyclerView(viewHolder.leftRecyclerView);
+            initRightRecyclerView(viewHolder.rightRecyclerView);
             return viewHolder;
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            PanelLineItemAdapter lineItemAdapter = (PanelLineItemAdapter) holder.recyclerView.getAdapter();
-            if (lineItemAdapter == null) {
-                lineItemAdapter = new PanelLineItemAdapter(position + 1, panelAdapter);
-                holder.recyclerView.setAdapter(lineItemAdapter);
+            PanelLineItemAdapter leftLineItemAdapter = (PanelLineItemAdapter) holder.leftRecyclerView.getAdapter();
+            PanelLineItemAdapter rightLineItemAdapter = (PanelLineItemAdapter) holder.rightRecyclerView.getAdapter();
+            if (leftLineItemAdapter == null) {
+                leftLineItemAdapter = new PanelLineItemAdapter(position + 1, leftPanelAdapter);
+                holder.leftRecyclerView.setAdapter(leftLineItemAdapter);
             } else {
-                lineItemAdapter.setRow(position + 1);
-                lineItemAdapter.notifyDataSetChanged();
+                leftLineItemAdapter.setRow(position + 1);
+                leftLineItemAdapter.notifyDataSetChanged();
             }
-            if (holder.firstColumnItemVH == null) {
-                RecyclerView.ViewHolder viewHolder = panelAdapter.onCreateViewHolder(holder.firstColumnItemView, panelAdapter.getItemViewType(position + 1, 0));
-                holder.firstColumnItemVH = viewHolder;
-                panelAdapter.onBindViewHolder(holder.firstColumnItemVH, position + 1, 0);
-                holder.firstColumnItemView.addView(viewHolder.itemView);
+            if (rightLineItemAdapter == null) {
+                rightLineItemAdapter = new PanelLineItemAdapter(position + 1, rightPanelAdapter);
+                holder.rightRecyclerView.setAdapter(rightLineItemAdapter);
             } else {
-                panelAdapter.onBindViewHolder(holder.firstColumnItemVH, position + 1, 0);
+                rightLineItemAdapter.setRow(position + 1);
+                rightLineItemAdapter.notifyDataSetChanged();
             }
+//            if (holder.middleColumnItemVH == null) {
+//                RecyclerView.ViewHolder viewHolder = leftPanelAdapter.onCreateViewHolder(holder.middleColumnItemView, leftPanelAdapter.getItemViewType(position + 1, leftPanelAdapter.getColumnCount()/2));
+//                holder.middleColumnItemVH = viewHolder;
+//                leftPanelAdapter.onBindViewHolder(holder.middleColumnItemVH, position + 1, leftPanelAdapter.getColumnCount()/2);
+//                holder.middleColumnItemView.setText(position + 1 + "");
+//            } else {
+//                leftPanelAdapter.onBindViewHolder(holder.middleColumnItemVH, position + 1, leftPanelAdapter.getColumnCount()/2);
+//            }
 
         }
 
 
         public void notifyDataChanged() {
-            setUpHeaderRecyclerView();
+            setUpLeftHeaderRecyclerView();
+            setUpRightHeaderRecyclerView();
             notifyDataSetChanged();
         }
 
@@ -207,32 +241,42 @@ public class ScrollablePanel extends FrameLayout {
             notifyItemChanged(position);
         }
 
-
-        private void setUpHeaderRecyclerView() {
-            if (panelAdapter != null) {
-                if (headerRecyclerView.getAdapter() == null) {
-                    PanelLineItemAdapter lineItemAdapter = new PanelLineItemAdapter(0, panelAdapter);
-                    headerRecyclerView.setAdapter(lineItemAdapter);
+        private void setUpLeftHeaderRecyclerView() {
+            if (leftPanelAdapter != null) {
+                if (leftHeaderRecyclerView.getAdapter() == null) {
+                    PanelLineItemAdapter lineItemAdapter = new PanelLineItemAdapter(0, leftPanelAdapter);
+                    leftHeaderRecyclerView.setAdapter(lineItemAdapter);
                 } else {
-                    headerRecyclerView.getAdapter().notifyDataSetChanged();
+                    leftHeaderRecyclerView.getAdapter().notifyDataSetChanged();
                 }
             }
         }
 
-        public void initRecyclerView(RecyclerView recyclerView) {
+        private void setUpRightHeaderRecyclerView() {
+            if (rightPanelAdapter != null) {
+                if (rightHeaderRecyclerView.getAdapter() == null) {
+                    PanelLineItemAdapter lineItemAdapter = new PanelLineItemAdapter(0, rightPanelAdapter);
+                    rightHeaderRecyclerView.setAdapter(lineItemAdapter);
+                } else {
+                    rightHeaderRecyclerView.getAdapter().notifyDataSetChanged();
+                }
+            }
+        }
+
+        public void initLeftRecyclerView(RecyclerView recyclerView) {
             recyclerView.setHasFixedSize(true);
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-            if (layoutManager != null && firstPos > 0 && firstOffset > 0) {
-                layoutManager.scrollToPositionWithOffset(PanelLineAdapter.this.firstPos + 1, PanelLineAdapter.this.firstOffset);
+            if (layoutManager != null && leftFirstPos > 0 && leftFirstOffset > 0) {
+                layoutManager.scrollToPositionWithOffset(PanelLineAdapter.this.leftFirstPos + 1, PanelLineAdapter.this.leftFirstOffset);
             }
-            observerList.add(recyclerView);
+            leftObserverList.add(recyclerView);
             recyclerView.setOnTouchListener(new OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     switch (motionEvent.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                         case MotionEvent.ACTION_POINTER_DOWN:
-                            for (RecyclerView rv : observerList) {
+                            for (RecyclerView rv : leftObserverList) {
                                 rv.stopScroll();
                             }
                     }
@@ -248,12 +292,12 @@ public class ScrollablePanel extends FrameLayout {
                     View firstVisibleItem = linearLayoutManager.getChildAt(0);
                     if (firstVisibleItem != null) {
                         int firstRight = linearLayoutManager.getDecoratedRight(firstVisibleItem);
-                        for (RecyclerView rv : observerList) {
+                        for (RecyclerView rv : leftObserverList) {
                             if (recyclerView != rv) {
                                 LinearLayoutManager layoutManager = (LinearLayoutManager) rv.getLayoutManager();
                                 if (layoutManager != null) {
-                                    PanelLineAdapter.this.firstPos = firstPos;
-                                    PanelLineAdapter.this.firstOffset = firstRight;
+                                    PanelLineAdapter.this.leftFirstPos = firstPos;
+                                    PanelLineAdapter.this.leftFirstOffset = firstRight;
                                     layoutManager.scrollToPositionWithOffset(firstPos + 1, firstRight);
                                 }
                             }
@@ -268,27 +312,90 @@ public class ScrollablePanel extends FrameLayout {
             });
         }
 
-        private HashSet<RecyclerView> getRecyclerViews() {
+        public void initRightRecyclerView(RecyclerView recyclerView) {
+            recyclerView.setHasFixedSize(true);
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            if (layoutManager != null && rightFirstPos > 0 && rightFirstOffset > 0) {
+                layoutManager.scrollToPositionWithOffset(PanelLineAdapter.this.rightFirstPos + 1, PanelLineAdapter.this.rightFirstOffset);
+            }
+            rightObserverList.add(recyclerView);
+            recyclerView.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    switch (motionEvent.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                        case MotionEvent.ACTION_POINTER_DOWN:
+                            for (RecyclerView rv : rightObserverList) {
+                                rv.stopScroll();
+                            }
+                    }
+                    return false;
+                }
+            });
+            // TODO
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    int firstPos = linearLayoutManager.findFirstVisibleItemPosition();
+                    View firstVisibleItem = linearLayoutManager.getChildAt(0);
+                    if (firstVisibleItem != null) {
+                        int firstRight = linearLayoutManager.getDecoratedRight(firstVisibleItem);
+                        for (RecyclerView rv : rightObserverList) {
+                            if (recyclerView != rv) {
+                                LinearLayoutManager layoutManager = (LinearLayoutManager) rv.getLayoutManager();
+                                if (layoutManager != null) {
+                                    PanelLineAdapter.this.rightFirstPos = firstPos;
+                                    PanelLineAdapter.this.rightFirstOffset = firstRight;
+                                    layoutManager.scrollToPositionWithOffset(firstPos + 1, firstRight);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                }
+            });
+        }
+
+        private HashSet<RecyclerView> getLeftRecyclerViews() {
             HashSet<RecyclerView> recyclerViewHashSet = new HashSet<>();
-            recyclerViewHashSet.add(headerRecyclerView);
+            recyclerViewHashSet.add(leftHeaderRecyclerView);
 
             for (int i = 0; i < contentRV.getChildCount(); i++) {
-                recyclerViewHashSet.add((RecyclerView) contentRV.getChildAt(i).findViewById(R.id.recycler_line_list));
+                recyclerViewHashSet.add((RecyclerView) contentRV.getChildAt(i).findViewById(R.id.left_recycler_line_list));
+            }
+            return recyclerViewHashSet;
+        }
+
+        private HashSet<RecyclerView> getRightRecyclerViews() {
+            HashSet<RecyclerView> recyclerViewHashSet = new HashSet<>();
+            recyclerViewHashSet.add(rightHeaderRecyclerView);
+
+            for (int i = 0; i < contentRV.getChildCount(); i++) {
+                recyclerViewHashSet.add((RecyclerView) contentRV.getChildAt(i).findViewById(R.id.right_recycler_line_list));
             }
             return recyclerViewHashSet;
         }
 
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            public RecyclerView recyclerView;
-            public FrameLayout firstColumnItemView;
-            public RecyclerView.ViewHolder firstColumnItemVH;
+            public RecyclerView rightRecyclerView;
+            public RecyclerView leftRecyclerView;
+//            public TextView middleColumnItemView;
+            public RecyclerView.ViewHolder middleColumnItemVH;
 
             public ViewHolder(View view) {
                 super(view);
-                this.recyclerView = (RecyclerView) view.findViewById(R.id.recycler_line_list);
-                this.firstColumnItemView = (FrameLayout) view.findViewById(R.id.first_column_item);
-                this.recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
+                this.leftRecyclerView = (RecyclerView) view.findViewById(R.id.left_recycler_line_list);
+                this.rightRecyclerView = (RecyclerView) view.findViewById(R.id.right_recycler_line_list);
+//                this.middleColumnItemView = (TextView) view.findViewById(R.id.middle_column_item);
+                this.rightRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
+                this.leftRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
             }
         }
 
