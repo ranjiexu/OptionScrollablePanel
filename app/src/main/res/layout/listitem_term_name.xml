@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="80dp"
     android:layout_height="50dp"
-    android:background="@drawable/bg_item"
+    android:background="@android:color/holo_green_light"
     android:gravity="center"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/term_name"
-        android:textSize="14sp"
-        android:textColor="@color/text_gray_666666"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/background_dark"
+        android:textSize="14sp" />
 
 </LinearLayout>
