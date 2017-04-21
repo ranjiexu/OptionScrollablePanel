@@ -51,6 +51,18 @@ public class MainActivity extends AppCompatActivity {
     // 左边合约条目值
     private static final String[] LEFT_TERM_VALUES = {"6", "5", "4", "3", "2", "1"};
 
+//    // 右边合约条目名称
+//    private static final String[] RIGHT_TERM_NAMES = {"最新价", "涨跌"};
+//
+//    // 左边合约条目名称
+//    private static final String[] LEFT_TERM_NAMES = { "总量", "卖价"};
+//
+//    // 右边合约条目值
+//    private static final String[] RIGHT_TERM_VALUES = {"1", "2"};
+//
+//    // 左边合约条目值
+//    private static final String[] LEFT_TERM_VALUES = {"6", "5"};
+
     // 行权价
     private static final String[] EXECUTION_PRICE = {"2500", "2550", "2600", "2650", "2700", "2750",
             "2800", "2850", "2900", "2950", "3000", "3050"};
