@@ -1,12 +1,12 @@
 package com.ranjiexu.optionscrollablepanel.library;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,7 +32,7 @@ public class ScrollablePanel extends FrameLayout {
     protected LinearLayout rightRecyclerLinearLayout;
     protected LinearLayout centerRecyclerLinearLayout;
 
-    private static final int CENTER_VIEW_WIDTH = 100;
+    private static final int CENTER_VIEW_WIDTH = 80;
     private int recyclerWidth;
     private int centerWidth;
 
@@ -69,7 +69,9 @@ public class ScrollablePanel extends FrameLayout {
         rightRecyclerLinearLayout = (LinearLayout) findViewById(R.id.right_recycler_linear_layout);
         centerRecyclerLinearLayout = (LinearLayout) findViewById(R.id.center_recycler_linear_layout);
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        centerWidth = (CENTER_VIEW_WIDTH * displayMetrics.widthPixels)/displayMetrics.densityDpi;
+        centerWidth = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CENTER_VIEW_WIDTH, displayMetrics));
+        Log.e("ranjiexu", "DisplayMetrics, densityDpi:" + displayMetrics.densityDpi);
+        Log.e("ranjiexu", "centerWidth:" + centerWidth);
         recyclerWidth = (displayMetrics.widthPixels - centerWidth)/2;
         Log.e("ranjiexu", "recyclerWidth:" + recyclerWidth);
         ViewGroup.LayoutParams leftLayoutParams = leftRecyclerLinearLayout.getLayoutParams();
@@ -284,6 +286,7 @@ public class ScrollablePanel extends FrameLayout {
 
         public void initLeftRecyclerView(RecyclerView recyclerView) {
             recyclerView.setHasFixedSize(true);
+            recyclerView.setNestedScrollingEnabled(false);
             // TODO
             if (leftFirstPos == -1) {
                 recyclerView.scrollToPosition(leftPanelAdapter.getColumnCount() - 1);
@@ -293,7 +296,7 @@ public class ScrollablePanel extends FrameLayout {
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
             if (layoutManager != null && leftFirstPos > 0 && leftFirstOffset > 0) {
                 layoutManager.scrollToPositionWithOffset(PanelLineAdapter.this.leftFirstPos + 1, PanelLineAdapter.this.leftFirstOffset);
-//                layoutManager.smoothScrollToPosition(recyclerView, null, PanelLineAdapter.this.leftFirstPos);
+                layoutManager.smoothScrollToPosition(recyclerView, null, PanelLineAdapter.this.leftFirstPos);
             }
             leftObserverList.add(recyclerView);
             recyclerView.setOnTouchListener(new OnTouchListener() {
@@ -313,10 +316,16 @@ public class ScrollablePanel extends FrameLayout {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
+                    int centerWidth = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CENTER_VIEW_WIDTH, recyclerView.getResources().getDisplayMetrics()));
                     LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                     int firstPos = linearLayoutManager.findFirstVisibleItemPosition();
                     View firstVisibleItem = linearLayoutManager.getChildAt(0);
                     if (firstVisibleItem != null) {
+                        int width = recyclerView.getWidth();
+//                        Log.e("ranjiexu", "initLeftRecyclerView with:" + width);
+                        int number = rightPanelAdapter.getColumnCount() - (width/centerWidth + 1);
+//                        Log.e("ranjiexu", "initLeftRecyclerView rightPanelAdapter.getColumnCount()" + rightPanelAdapter.getColumnCount());
+//                        Log.e("ranjiexu", "initLeftRecyclerView number:" + number);
                         int firstRight = linearLayoutManager.getDecoratedRight(firstVisibleItem);
                         for (RecyclerView rv : leftObserverList) {
                             if (recyclerView != rv) {
@@ -324,8 +333,8 @@ public class ScrollablePanel extends FrameLayout {
                                 if (layoutManager != null) {
                                     PanelLineAdapter.this.leftFirstPos = firstPos;
                                     PanelLineAdapter.this.leftFirstOffset = firstRight;
-                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
-                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
+//                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
+//                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
                                     layoutManager.scrollToPositionWithOffset(firstPos + 1, firstRight);
                                 }
                             }
@@ -334,16 +343,16 @@ public class ScrollablePanel extends FrameLayout {
                             if (recyclerView != rv) {
                                 LinearLayoutManager layoutManager = (LinearLayoutManager) rv.getLayoutManager();
                                 if (layoutManager != null) {
-                                    int ops = 4 - firstPos;
-                                    int offset = 427 - firstRight;
-                                    if (offset > 240){
-                                        offset = 427 - firstRight - 240;
+                                    int ops = number - firstPos;
+                                    int offset = width - firstRight;
+                                    if (offset > centerWidth){
+                                        offset = width - firstRight - centerWidth;
                                         ops = ops - 1;
                                     }
                                     PanelLineAdapter.this.rightFirstPos = ops;
                                     PanelLineAdapter.this.rightFirstOffset = offset;
-                                    Log.e("ranjiexu", "rightFirstPos:" + rightFirstPos);
-                                    Log.e("ranjiexu", "rightFirstOffset:" + rightFirstOffset);
+//                                    Log.e("ranjiexu", "rightFirstPos:" + rightFirstPos);
+//                                    Log.e("ranjiexu", "rightFirstOffset:" + rightFirstOffset);
                                     layoutManager.scrollToPositionWithOffset(ops + 1, offset);
                                 }
                             }
@@ -360,6 +369,7 @@ public class ScrollablePanel extends FrameLayout {
 
         public void initRightRecyclerView(RecyclerView recyclerView) {
             recyclerView.setHasFixedSize(true);
+            recyclerView.setNestedScrollingEnabled(false);
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
             if (layoutManager != null && rightFirstPos > 0 && rightFirstOffset > 0) {
                 layoutManager.scrollToPositionWithOffset(PanelLineAdapter.this.rightFirstPos + 1, PanelLineAdapter.this.rightFirstOffset);
@@ -383,9 +393,15 @@ public class ScrollablePanel extends FrameLayout {
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
                     LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    int centerWidth = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CENTER_VIEW_WIDTH, recyclerView.getResources().getDisplayMetrics()));
                     int firstPos = linearLayoutManager.findFirstVisibleItemPosition();
                     View firstVisibleItem = linearLayoutManager.getChildAt(0);
                     if (firstVisibleItem != null) {
+                        int width = recyclerView.getWidth();
+//                        Log.e("ranjiexu", "initRightRecyclerView with:" + width);
+                        int number = leftPanelAdapter.getColumnCount() - (width/centerWidth + 1);
+//                        Log.e("ranjiexu", "initRightRecyclerView leftPanelAdapter.getColumnCount()" + leftPanelAdapter.getColumnCount());
+//                        Log.e("ranjiexu", "initRightRecyclerView number:" + number);
                         int firstRight = linearLayoutManager.getDecoratedRight(firstVisibleItem);
                         for (RecyclerView rv : rightObserverList) {
                             if (recyclerView != rv) {
@@ -393,8 +409,8 @@ public class ScrollablePanel extends FrameLayout {
                                 if (layoutManager != null) {
                                     PanelLineAdapter.this.rightFirstPos = firstPos;
                                     PanelLineAdapter.this.rightFirstOffset = firstRight;
-                                    Log.e("ranjiexu", "rightFirstPos:" + rightFirstPos);
-                                    Log.e("ranjiexu", "rightFirstOffset:" + rightFirstOffset);
+//                                    Log.e("ranjiexu", "rightFirstPos:" + rightFirstPos);
+//                                    Log.e("ranjiexu", "rightFirstOffset:" + rightFirstOffset);
                                     layoutManager.scrollToPositionWithOffset(firstPos + 1, firstRight);
                                 }
                             }
@@ -404,16 +420,16 @@ public class ScrollablePanel extends FrameLayout {
                             if (recyclerView != rv) {
                                 LinearLayoutManager layoutManager = (LinearLayoutManager) rv.getLayoutManager();
                                 if (layoutManager != null) {
-                                    int ops = 4 - firstPos;
-                                    int offset = 427 - firstRight;
-                                    if (offset > 240){
-                                        offset = 427 - firstRight - 240;
+                                    int ops = number - firstPos;
+                                    int offset = width - firstRight;
+                                    if (offset > centerWidth){
+                                        offset = width - firstRight - centerWidth;
                                         ops = ops - 1;
                                     }
                                     PanelLineAdapter.this.leftFirstPos = ops;
                                     PanelLineAdapter.this.leftFirstOffset = offset;
-                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
-                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
+//                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
+//                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
                                     layoutManager.scrollToPositionWithOffset(ops + 1, offset);
                                 }
                             }
@@ -470,7 +486,7 @@ public class ScrollablePanel extends FrameLayout {
                 rightRecyclerLinearList = (LinearLayout) view.findViewById(R.id.right_recycler_linear_list);
                 centRecyclerLinearList = (LinearLayout) view.findViewById(R.id.middle_column_item);
                 DisplayMetrics displayMetrics = view.getResources().getDisplayMetrics();
-                int centerWidth = (CENTER_VIEW_WIDTH * displayMetrics.widthPixels)/displayMetrics.densityDpi;
+                int centerWidth = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CENTER_VIEW_WIDTH, displayMetrics));
                 int recyclerWidth = (displayMetrics.widthPixels - centerWidth)/2;
                 ViewGroup.LayoutParams leftLayoutParams = leftRecyclerLinearList.getLayoutParams();
                 leftLayoutParams.width = recyclerWidth;
