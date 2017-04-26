@@ -333,8 +333,8 @@ public class ScrollablePanel extends FrameLayout {
                                 if (layoutManager != null) {
                                     PanelLineAdapter.this.leftFirstPos = firstPos;
                                     PanelLineAdapter.this.leftFirstOffset = firstRight;
-//                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
-//                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
+                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
+                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
                                     layoutManager.scrollToPositionWithOffset(firstPos + 1, firstRight);
                                 }
                             }
