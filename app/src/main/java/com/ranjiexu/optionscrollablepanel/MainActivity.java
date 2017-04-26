@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
         scrollablePanel = (ScrollablePanel) findViewById(R.id.scrollable_panel);
         leftScrollablePanelAdapter = new ScrollablePanelAdapter();
         rightScrollablePanelAdapter = new ScrollablePanelAdapter();
-        generateData(leftScrollablePanelAdapter, LEFT_TERM_NAMES, LEFT_TERM_VALUES, EXECUTION_PRICE);
-        generateData(rightScrollablePanelAdapter, RIGHT_TERM_NAMES, RIGHT_TERM_VALUES, EXECUTION_PRICE);
-        scrollablePanel.setPanelAdapter(leftScrollablePanelAdapter, rightScrollablePanelAdapter);
+        generateData(leftScrollablePanelAdapter, LEFT_TERM_NAMES, LEFT_TERM_VALUES, EXECUTION_PRICE.length);
+        generateData(rightScrollablePanelAdapter, RIGHT_TERM_NAMES, RIGHT_TERM_VALUES, EXECUTION_PRICE.length);
+        scrollablePanel.setPanelAdapter(leftScrollablePanelAdapter, rightScrollablePanelAdapter, EXECUTION_PRICE);
         // 开启定时更新单条记录
 //        startSingle();
     }
@@ -92,9 +92,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             Log.e("ranjiexu", "更新单条行情数据。。。");
-            generateData(leftScrollablePanelAdapter, LEFT_TERM_NAMES, LEFT_TERM_VALUES, EXECUTION_PRICE);
-            generateData(rightScrollablePanelAdapter, RIGHT_TERM_NAMES, RIGHT_TERM_VALUES, EXECUTION_PRICE);
-            scrollablePanel.setPanelAdapter(leftScrollablePanelAdapter , rightScrollablePanelAdapter);
+            generateData(leftScrollablePanelAdapter, LEFT_TERM_NAMES, LEFT_TERM_VALUES, EXECUTION_PRICE.length);
+            generateData(rightScrollablePanelAdapter, RIGHT_TERM_NAMES, RIGHT_TERM_VALUES, EXECUTION_PRICE.length);
+            scrollablePanel.setPanelAdapter(leftScrollablePanelAdapter , rightScrollablePanelAdapter, EXECUTION_PRICE);
             scrollablePanel.notifyDataItemChanged(0);
             mHandler.postDelayed(this, 10000);
         }
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static void generateData(ScrollablePanelAdapter scrollablePanelAdapter, String[] termNames, String[] termValues, String[] executionPrice) {
+    private static void generateData(ScrollablePanelAdapter scrollablePanelAdapter, String[] termNames, String[] termValues, int length) {
 
         List<TermName> termNameList = new ArrayList<>();
         for (int i = 0; i < termNames.length; i++) {
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         scrollablePanelAdapter.setTermNameList(termNameList);
 
         List<List<TermValue>> termValuesList = new ArrayList<>();
-        for (int i = 0; i < executionPrice.length; i++) {
+        for (int i = 0; i < length; i++) {
             List<TermValue> termValueList = new ArrayList<>();
             for (int j = 0; j < termValues.length; j++) {
                 TermValue termValue = new TermValue();
