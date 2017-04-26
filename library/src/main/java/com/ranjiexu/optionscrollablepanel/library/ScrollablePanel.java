@@ -83,17 +83,10 @@ public class ScrollablePanel extends FrameLayout {
 
 
         if (leftPanelAdapter != null && rightPanelAdapter != null) {
-            panelLineAdapter = new PanelLineAdapter(leftPanelAdapter, rightPanelAdapter, recyclerView, leftHeaderRecyclerView, rightHeaderRecyclerView);
+            panelLineAdapter = new PanelLineAdapter(leftPanelAdapter, rightPanelAdapter, recyclerView, leftHeaderRecyclerView, rightHeaderRecyclerView, null);
             recyclerView.setAdapter(panelLineAdapter);
-//            setUpFirstItemView(leftPanelAdapter);
         }
     }
-
-//    private void setUpFirstItemView(PanelAdapter leftPanelAdapter) {
-////        RecyclerView.ViewHolder viewHolder = leftPanelAdapter.onCreateViewHolder(middleItemView, leftPanelAdapter.getItemViewType(0, leftPanelAdapter.getColumnCount()/2));
-////        leftPanelAdapter.onBindViewHolder(viewHolder, 0, leftPanelAdapter.getColumnCount()/2);
-//        middleItemView.setText("执行价");
-//    }
 
     public void notifyDataSetChanged() {
         if (panelLineAdapter != null) {
@@ -111,19 +104,17 @@ public class ScrollablePanel extends FrameLayout {
     /**
      * @param leftPanelAdapter {@link PanelAdapter}
      */
-    public void setPanelAdapter(PanelAdapter leftPanelAdapter, PanelAdapter rightPanelAdapter) {
+    public void setPanelAdapter(PanelAdapter leftPanelAdapter, PanelAdapter rightPanelAdapter, String[] prices) {
         if (this.panelLineAdapter != null) {
             panelLineAdapter.setLeftPanelAdapter(leftPanelAdapter);
             panelLineAdapter.setRightPanelAdapter(rightPanelAdapter);
             panelLineAdapter.notifyDataSetChanged();
         } else {
-            panelLineAdapter = new PanelLineAdapter(leftPanelAdapter, rightPanelAdapter, recyclerView, leftHeaderRecyclerView, rightHeaderRecyclerView);
+            panelLineAdapter = new PanelLineAdapter(leftPanelAdapter, rightPanelAdapter, recyclerView, leftHeaderRecyclerView, rightHeaderRecyclerView, prices);
             recyclerView.setAdapter(panelLineAdapter);
         }
         this.leftPanelAdapter = leftPanelAdapter;
         this.rightPanelAdapter = rightPanelAdapter;
-//        setUpFirstItemView(leftPanelAdapter);
-
     }
 
     /**
@@ -177,6 +168,7 @@ public class ScrollablePanel extends FrameLayout {
         private RecyclerView leftHeaderRecyclerView;
         private RecyclerView rightHeaderRecyclerView;
         private RecyclerView contentRV;
+        private String[] prices;
         private HashSet<RecyclerView> leftObserverList = new HashSet<>();
         private int leftFirstPos = -1;
         private int leftFirstOffset = -1;
@@ -185,12 +177,13 @@ public class ScrollablePanel extends FrameLayout {
         private int rightFirstOffset = -1;
 
 
-        public PanelLineAdapter(PanelAdapter leftPanelAdapter, PanelAdapter rightPanelAdapter, RecyclerView contentRV, RecyclerView leftHeaderRecyclerView, RecyclerView rightHeaderRecyclerView) {
+        public PanelLineAdapter(PanelAdapter leftPanelAdapter, PanelAdapter rightPanelAdapter, RecyclerView contentRV, RecyclerView leftHeaderRecyclerView, RecyclerView rightHeaderRecyclerView, String [] prices) {
             this.leftPanelAdapter = leftPanelAdapter;
             this.rightPanelAdapter = rightPanelAdapter;
             this.leftHeaderRecyclerView = leftHeaderRecyclerView;
             this.rightHeaderRecyclerView = rightHeaderRecyclerView;
             this.contentRV = contentRV;
+            this.prices = prices;
             initLeftRecyclerView(leftHeaderRecyclerView);
             initRightRecyclerView(rightHeaderRecyclerView);
             setUpLeftHeaderRecyclerView();
@@ -246,8 +239,8 @@ public class ScrollablePanel extends FrameLayout {
                 rightLineItemAdapter.setRow(position + 1);
                 rightLineItemAdapter.notifyDataSetChanged();
             }
-            // TODO
-            holder.executionPriceView.setText((position + 1) + "");
+            // 设置执行价
+            holder.executionPriceView.setText((prices[position]));
         }
 
 
@@ -287,7 +280,6 @@ public class ScrollablePanel extends FrameLayout {
         public void initLeftRecyclerView(RecyclerView recyclerView) {
             recyclerView.setHasFixedSize(true);
             recyclerView.setNestedScrollingEnabled(false);
-            // TODO
             if (leftFirstPos == -1) {
                 recyclerView.scrollToPosition(leftPanelAdapter.getColumnCount() - 1);
             }
@@ -296,7 +288,6 @@ public class ScrollablePanel extends FrameLayout {
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
             if (layoutManager != null && leftFirstPos > 0 && leftFirstOffset > 0) {
                 layoutManager.scrollToPositionWithOffset(PanelLineAdapter.this.leftFirstPos + 1, PanelLineAdapter.this.leftFirstOffset);
-                layoutManager.smoothScrollToPosition(recyclerView, null, PanelLineAdapter.this.leftFirstPos);
             }
             leftObserverList.add(recyclerView);
             recyclerView.setOnTouchListener(new OnTouchListener() {
