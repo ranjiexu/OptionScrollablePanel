@@ -20,8 +20,9 @@
                 android:layout_width="150dp"
                 android:layout_height="match_parent"
                 >
-                <android.support.v7.widget.RecyclerView
+                <com.ranjiexu.optionscrollablepanel.library.BetterRecyclerView
                     android:id="@+id/left_recycler_header_list"
+                    android:animateLayoutChanges="false"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
             </LinearLayout>
@@ -46,16 +47,18 @@
                 android:layout_width="150dp"
                 android:layout_height="match_parent"
                 >
-                <android.support.v7.widget.RecyclerView
+                <com.ranjiexu.optionscrollablepanel.library.BetterRecyclerView
                     android:id="@+id/right_recycler_header_list"
+                    android:animateLayoutChanges="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
 
 
-        <android.support.v7.widget.RecyclerView
+        <com.ranjiexu.optionscrollablepanel.library.BetterRecyclerView
             android:id="@+id/recycler_content_list"
+            android:animateLayoutChanges="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>

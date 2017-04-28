@@ -9,8 +9,9 @@
         android:id="@+id/left_recycler_linear_list"
         android:layout_width="150dp"
         android:layout_height="match_parent">
-        <android.support.v7.widget.RecyclerView
+        <com.ranjiexu.optionscrollablepanel.library.BetterRecyclerView
             android:id="@+id/left_recycler_line_list"
+            android:animateLayoutChanges="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -36,8 +37,9 @@
         android:id="@+id/right_recycler_linear_list"
         android:layout_width="150dp"
         android:layout_height="match_parent">
-        <android.support.v7.widget.RecyclerView
+        <com.ranjiexu.optionscrollablepanel.library.BetterRecyclerView
             android:id="@+id/right_recycler_line_list"
+            android:animateLayoutChanges="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

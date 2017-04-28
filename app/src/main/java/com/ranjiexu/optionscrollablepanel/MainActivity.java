@@ -63,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
 //    // 左边合约条目值
 //    private static final String[] LEFT_TERM_VALUES = {"6", "5"};
 
+//    // 行权价
+//    private static final String[] EXECUTION_PRICE = {"2500", "2550"};
+
     // 行权价
     private static final String[] EXECUTION_PRICE = {"2500", "2550", "2600", "2650", "2700", "2750",
             "2800", "2850", "2900", "2950", "3000", "3050"};
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         scrollablePanel = (ScrollablePanel) findViewById(R.id.scrollable_panel);
+//        scrollablePanel.setNestedScrollingEnabled(false);
         leftScrollablePanelAdapter = new ScrollablePanelAdapter();
         rightScrollablePanelAdapter = new ScrollablePanelAdapter();
         generateData(leftScrollablePanelAdapter, LEFT_TERM_NAMES, LEFT_TERM_VALUES, EXECUTION_PRICE.length);
@@ -124,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
             for (int j = 0; j < termValues.length; j++) {
                 TermValue termValue = new TermValue();
                 termValue.setValue(termValues[j]);
-                termValue.setStatus(TermValue.Status.randomStatus());
+                termValue.setStatus(TermValue.Status.GREEN);
                 termValueList.add(termValue);
             }
             termValuesList.add(termValueList);
