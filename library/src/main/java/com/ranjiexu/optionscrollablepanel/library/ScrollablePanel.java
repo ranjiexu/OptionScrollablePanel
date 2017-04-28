@@ -22,9 +22,9 @@ import java.util.HashSet;
  * but it will pin the itemView of first row and first column in their original location.
  */
 public class ScrollablePanel extends FrameLayout {
-    protected RecyclerView recyclerView;
-    protected RecyclerView rightHeaderRecyclerView;
-    protected RecyclerView leftHeaderRecyclerView;
+    protected BetterRecyclerView recyclerView;
+    protected BetterRecyclerView rightHeaderRecyclerView;
+    protected BetterRecyclerView leftHeaderRecyclerView;
     protected PanelLineAdapter panelLineAdapter;
     protected PanelAdapter leftPanelAdapter;
     protected PanelAdapter rightPanelAdapter;
@@ -55,12 +55,12 @@ public class ScrollablePanel extends FrameLayout {
 
     private void initView() {
         LayoutInflater.from(getContext()).inflate(R.layout.view_scrollable_panel, this, true);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_content_list);
+        recyclerView = (BetterRecyclerView) findViewById(R.id.recycler_content_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        rightHeaderRecyclerView = (RecyclerView) findViewById(R.id.right_recycler_header_list);
+        rightHeaderRecyclerView = (BetterRecyclerView) findViewById(R.id.right_recycler_header_list);
         rightHeaderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rightHeaderRecyclerView.setHasFixedSize(true);
-        leftHeaderRecyclerView = (RecyclerView) findViewById(R.id.left_recycler_header_list);
+        leftHeaderRecyclerView = (BetterRecyclerView) findViewById(R.id.left_recycler_header_list);
         leftHeaderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         leftHeaderRecyclerView.setHasFixedSize(true);
 
@@ -324,8 +324,8 @@ public class ScrollablePanel extends FrameLayout {
                                 if (layoutManager != null) {
                                     PanelLineAdapter.this.leftFirstPos = firstPos;
                                     PanelLineAdapter.this.leftFirstOffset = firstRight;
-                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
-                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
+//                                    Log.e("ranjiexu", "leftFirstPos:" + leftFirstPos);
+//                                    Log.e("ranjiexu", "leftFirstOffset:" + leftFirstOffset);
                                     layoutManager.scrollToPositionWithOffset(firstPos + 1, firstRight);
                                 }
                             }
@@ -457,8 +457,8 @@ public class ScrollablePanel extends FrameLayout {
 
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            public RecyclerView rightRecyclerView;
-            public RecyclerView leftRecyclerView;
+            public BetterRecyclerView rightRecyclerView;
+            public BetterRecyclerView leftRecyclerView;
             public TextView executionPriceView;
             public LinearLayout leftRecyclerLinearList;
             public LinearLayout centRecyclerLinearList;
@@ -466,8 +466,8 @@ public class ScrollablePanel extends FrameLayout {
 
             public ViewHolder(View view) {
                 super(view);
-                this.leftRecyclerView = (RecyclerView) view.findViewById(R.id.left_recycler_line_list);
-                this.rightRecyclerView = (RecyclerView) view.findViewById(R.id.right_recycler_line_list);
+                this.leftRecyclerView = (BetterRecyclerView) view.findViewById(R.id.left_recycler_line_list);
+                this.rightRecyclerView = (BetterRecyclerView) view.findViewById(R.id.right_recycler_line_list);
                 this.executionPriceView = (TextView) view.findViewById(R.id.execution_price);
                 this.rightRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
                 this.leftRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
